@@ -180,13 +180,21 @@ function modTotal(name){}
 //determines did the attack work
 function isHit(personAttacked){}
 
-function drawAllCounterInfo(){}
+function drawAllCounterInfo(){
+  let template= `<div class="row">`
+  template += templateWantedLevel();
+  template += templateCounters();
+  template += `<div>`
+
+  document.getElementById('all-Counter-info').innerHTML = template;
+}
 
 function drawAllWeaponInfo(){}
 
-function drawRobot(){
+function drawRobot(key){
   let template = ''
-  for
+  template += `<img src="${bosses[key].img}" alt="Evil Robot"></img>`
+  document.getElementById('robot').innerHTML() = template;
 }
 
 function templateAutoHacker(){
@@ -204,14 +212,35 @@ function templateBetterWeapons(){
 }
 
 function templateWantedLevel(){
-  let template = ''
+  let template = '`<div class="col-md-6" id="wanted-level">`'
   for (let i = 0; i < player.wantedLevel; i++) {
     template +=`<i class="mdi mdi-shield-star"></i>`
 
   }
-  return template;
+  return template += `</div>`;
 }
 
 function templateCounters(){
-  return template;
+  template = `<div class="col-md-6" id="counters">`
+  for (let keys in counter){
+    switch(keys){
+      case kill:
+        template += `<h5>Total Kills: ${counter[key].totalkills}</h5>
+        <h5>Max Kills Held: ${counter[key].hightestHeldKills}</h5><br>`
+        break;
+      case bossesSeen:
+        template += `<h5>Bosses Killed: ${counter[key].bossesKilled}</h5>
+        <h5>Bosses Seen: ${counter[key].hightestHeldKills}</h5><br>`
+        break;
+      case hitsTaken:
+        template += `<h5>Damage Received: ${counter[key].totalDmgTaken}</h5>
+        <h5>Revives Used: ${counter[key].totalRevives}</h5>
+        <h5>Heals Used: ${counter[key].totalHeals}</h5>`
+        break;
+    }
+  }
+  return template += `</div>`;
 }
+
+
+drawRobot('basicEnemy')
