@@ -14,17 +14,17 @@ let player = {
 
 let counter = {
   kill: {
-    totalkills = 0,
-    hightestHeldKills = 0
+    totalkills: 0,
+    hightestHeldKills: 0
   },
   bossesSeen: {
-    totalBossesSeen = 0,
-    bossesKilled = 0
+    totalBossesSeen: 0,
+    bossesKilled: 0
   },
   hitsTaken: {
-    totalDmgTaken = 0,
-    totalRevives = 0,
-    totalHeals = 0
+    totalDmgTaken: 0,
+    totalRevives: 0,
+    totalHeals: 0
   }
 }
 
@@ -110,7 +110,7 @@ let autoHacks = {
 
 //SECTION characters arrays vs :
 let bosses = [{
-  basicEnemy = {
+   basicEnemy: {
     health: 1,
     evasion: 0,
     armor: 0,
@@ -118,9 +118,9 @@ let bosses = [{
     attackRate: 0,
     weakness: 'none',
     weaknessMod: 0,
-    img: 'assets/evil_terminator.png'
-  },
-  mechEnemy = {
+    img: 'assets/img/evil_terminator.png'
+  }},
+  { mechEnemy: {
     health: 100,
     evasion: .02,
     armor: .1,
@@ -128,9 +128,9 @@ let bosses = [{
     attackRate: 0.5,
     weakness: 'handCannon',
     weaknessMod: 2.8,
-    img: 'assets/evil_terminator.png'
-    },
-  squadBasic = {
+    img: 'assets/img/evil_terminator.png'
+    }},
+  { squadBasic: {
     health: 40,
     evasion: .1,
     armor: 0,
@@ -138,9 +138,9 @@ let bosses = [{
     attackRate: 0.9,
     weakness: 'taser',
     weaknessMod: 3,
-    img: 'assets/evil_terminator.png'
-    },
-  squadMech = {
+    img: 'assets/img/evil_terminator.png'
+    }},
+  {squadMech: {
     health: 400,
     evasion: .1,
     armor: .3,
@@ -148,9 +148,9 @@ let bosses = [{
     attackRate: 1.3,
     weakness: 'wire',
     weaknessMod: 8,
-    img: 'assets/evil_terminator.png'
-    },
-  robotArmy = {
+    img: 'assets/img/evil_terminator.png'
+  }},
+  { robotArmy: {
     health: 1000000,
     evasion: 0,
     armor: .5,
@@ -158,9 +158,9 @@ let bosses = [{
     attackRate: 15,
     weakness: 'lightSaber',
     weaknessMod: 400,
-    img: 'assets/evil_terminator.png'
-  },
-}]
+    img: 'assets/img/evil_terminator.png'
+  }},
+]
 
 // TODO need a check for if user is activating dual wield
 
@@ -193,8 +193,10 @@ function drawAllWeaponInfo(){}
 
 function drawRobot(key){
   let template = ''
-  template += `<img src="${bosses[key].img}" alt="Evil Robot"></img>`
-  document.getElementById('robot').innerHTML() = template;
+  let object = bosses.find(element => Object.keys(element)[0] == key)
+  console.log(object)
+  template += `<img src=${object[key].img} alt="Evil Robot">`
+  document.getElementById('robot').innerHTML = template;
 }
 
 function templateAutoHacker(){
@@ -224,18 +226,18 @@ function templateCounters(){
   template = `<div class="col-md-6" id="counters">`
   for (let keys in counter){
     switch(keys){
-      case kill:
-        template += `<h5>Total Kills: ${counter[key].totalkills}</h5>
-        <h5>Max Kills Held: ${counter[key].hightestHeldKills}</h5><br>`
+      case 'kill':
+        template += `<h5>Total Kills: ${counter[keys].totalkills}</h5>
+        <h5>Max Kills Held: ${counter[keys].hightestHeldKills}</h5><br>`
         break;
-      case bossesSeen:
-        template += `<h5>Bosses Killed: ${counter[key].bossesKilled}</h5>
-        <h5>Bosses Seen: ${counter[key].hightestHeldKills}</h5><br>`
+      case 'bossesSeen':
+        template += `<h5>Bosses Killed: ${counter[keys].bossesKilled}</h5>
+        <h5>Bosses Seen: ${counter[keys].hightestHeldKills}</h5><br>`
         break;
-      case hitsTaken:
-        template += `<h5>Damage Received: ${counter[key].totalDmgTaken}</h5>
-        <h5>Revives Used: ${counter[key].totalRevives}</h5>
-        <h5>Heals Used: ${counter[key].totalHeals}</h5>`
+      case 'hitsTaken':
+        template += `<h5>Damage Received: ${counter[keys].totalDmgTaken}</h5>
+        <h5>Revives Used: ${counter[keys].totalRevives}</h5>
+        <h5>Heals Used: ${counter[keys].totalHeals}</h5>`
         break;
     }
   }
@@ -244,3 +246,4 @@ function templateCounters(){
 
 
 drawRobot('basicEnemy')
+drawAllCounterInfo()
