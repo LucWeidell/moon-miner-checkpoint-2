@@ -27,4 +27,5 @@ main{
 /* class for all circular images for clickable image  */
 .circular {
   border-radius: 50%;
+  border: 2px solid rgba(220, 20, 60, 0.678);
 }
