@@ -4,10 +4,13 @@ let gameSettings = {
   clickSpeed: 5000,
   enemyAttack: 5000,
   cheating: false,
-  currentBossHealth: 0
+  currentBossHealth: 0,
+  genocide: false,
+  savior: false,
+  cheated: false
 }
 
-//    Design Priniciple:
+//    Design Principle:
 //    All objects in an array should have the say properties NEVER different
 //SECTION
 let player = {
@@ -219,9 +222,14 @@ let bosses = [{
   }},
 ]
 
+
 // TODO need a check for if user is activating dual wield
 function ourConstantTimer(){
-  setInterval(() => {
+  let interval = setInterval(() => {
+    if(finishChecker()){
+      clearInterval(interval)
+    }
+
     updateAllVisibility()
     drawAllStats()
   },
@@ -309,10 +317,16 @@ function updateBossHealth(howmuch){
 }
 
 //All new items become visible when have attained half the cost
-function updateAllVisibility()
+function updateAllVisibility(){
+  turretsVisible()
+  autoHacksVisible()
+  handWeaponsVisible()
+  defencePerksVisible()
+}
 
 function turretsVisible(){
 
+  isVisible(100)
 }
 function autoHacksVisible(){}
 function handWeaponsVisible(){}
@@ -417,12 +431,37 @@ function isTooFast(){
   if(gameSettings.cheating){
     player.health = 0;
     alert(`You have betrayed humanity and become a machine. Failure! (auto-revives dont work on robots)`)
+    cheated= true;
   }
   gameSettings.cheating = true;
   setTimeout(() => {
     gameSettings.cheating = false;
   }, gameSettings.clickSpeed)
 }
+
+//Checks for end of game using flags
+function finishChecker(){
+  if(gameSettings.genocide){
+    winGeno()
+    return true
+  }
+  if(gameSettings.savior){
+    winSaviour()
+    return true
+  }
+  if(gameSettings.cheated){
+    loseCheat()
+    return true
+  }
+  return false
+}
+
+function winGeno(){}
+
+function winSaviour(){}
+
+function loseCheat(){}
+
 
 //invoke start
 drawRobot('basicEnemy')
