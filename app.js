@@ -2,7 +2,7 @@
 //    Design Priniciple:
 // SECTION global speed of game: done in ms (1000ms = 1 sec)
 let gameSettings = {
-  clickSpeed: 50,
+  clickSpeed: 5000,
   enemyAttack: 5000,
   cheating: false,
   currentBossHealth: 0
@@ -172,7 +172,12 @@ let bosses = [{
 
 // TODO need a check for if user is activating dual wield
 
+//NOTE this is the major all in one function
+function attack(enemy){
+  if(isHit(enemy)){
 
+  }
+}
 
 //Function list
 
@@ -186,7 +191,25 @@ function updateHealth(){}
 function modTotal(name){}
 
 //determines did the attack work
-function isHit(personAttacked){}
+function isHit(attacked){
+  let evasion = 0;
+  if(attacked == 'player'){
+    evasion = player.evasion
+
+  } else if(attacked = basicEnemy){
+    return true;
+  }
+  else {
+    let enemy = bosses.find(element => Object.keys(element)[0] == attacked)
+    evasion = enemy[attacked].evasion
+  }
+  let result = (Math.random() > evasion)
+  return result
+}
+
+
+
+
 
 function drawAllCounterInfo(){
   let template= `<div class="row">`
@@ -203,7 +226,7 @@ function drawRobot(key){
   let template = ''
   let object = bosses.find(element => Object.keys(element)[0] == key)
   console.log(object)
-  template += `<img src=${object[key].img} alt="Evil Robot" class="circular" onClick('isTooFast()', )>`
+  template += `<img src=${object[key].img} alt="Evil Robot" class="circular" onClick('isTooFast()', attack(${key}))>`
   document.getElementById('robot').innerHTML = template;
 }
 
@@ -253,15 +276,15 @@ function templateCounters(){
 }
 
 function isTooFast(){
+  console.log(gameSettings.cheating)
   if(gameSettings.cheating){
     player.health = 0;
-    alert(`You have betrayed humanity and become a machine. Failure!`)
+    alert(`You have betrayed humanity and become a machine. Failure! (auto-revives dont work on robots)`)
   }
+  gameSettings.cheating = true;
   setTimeout(() => {
-    player.cheating = true;
-  }, 60)
-
-  player.cheating = false;
+    gameSettings.cheating = false;
+  }, gameSettings.clickSpeed)
 }
 
 drawRobot('basicEnemy')
