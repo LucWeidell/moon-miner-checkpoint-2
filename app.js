@@ -1,5 +1,4 @@
 //NOTE an important NOTE
-//    Design Priniciple:
 // SECTION global speed of game: done in ms (1000ms = 1 sec)
 let gameSettings = {
   clickSpeed: 5000,
@@ -8,6 +7,7 @@ let gameSettings = {
   currentBossHealth: 0
 }
 
+//    Design Priniciple:
 //    All objects in an array should have the say properties NEVER different
 //SECTION
 let player = {
@@ -24,27 +24,33 @@ let player = {
 let handWeapons = {
   fist: {
     damage: 5,
-    cost: [1000,10000]
+    cost: [1000,10000],
+    visible: false
   },
   taser: {
     damage: 100,
-    cost: [1000,10000]
+    cost: [1000,10000],
+    visible: false
   },
   whip: {
     damage: 1000,
-    cost: [1000,10000]
+    cost: [1000,10000],
+    visible: false
   },
   wire: {
     damage: 10000,
-    cost: [1000,10000]
+    cost: [1000,10000],
+    visible: false
   },
   handCannon: {
     damage: 10000,
-    cost: [1000,10000]
+    cost: [1000,10000],
+    visible: false
   },
   lightSaber: {
     damage: 10000,
-    cost: [1000,10000]
+    cost: [1000,10000],
+    visible: false
   }
 }
 
@@ -77,38 +83,46 @@ let wantedLevels = [
 let defencePerks = {
   addHealth: {
     increase: 10,
-    cost: [1000, 10000, 100000, 1000000]
+    cost: [1000, 10000, 100000, 1000000],
+    visible: false
   },
   addEvasion: {
     increase: .10,
-    cost: [1000, 10000, 100000, 1000000]
+    cost: [1000, 10000, 100000, 1000000],
+    visible: false
   },
   addRevive: {
     increase: 1,
-    cost: [100, 1000, 10000, 100000]
+    cost: [100, 1000, 10000, 100000],
+    visible: false
   },
   addArmor: {
     increase: 10,
-    cost: [1000, 10000, 100000, 1000000]
+    cost: [1000, 10000, 100000, 1000000],
+    visible: false
   },
 }
 
 let turrets = {
   machineGun: {
     damage: 5,
-    cost: [1000, 10000, 100000, 1000000]
+    cost: [1000, 10000, 100000, 1000000],
+    visible: false
   },
   missile: {
     damage: 100,
-    cost: [1000, 10000, 100000, 1000000]
+    cost: [1000, 10000, 100000, 1000000],
+    visible: false
   },
   metallicDismantler: {
     damage: 1000,
-    cost: [1000, 10000, 100000, 1000000]
+    cost: [1000, 10000, 100000, 1000000],
+    visible: false
   },
   deathRay: {
     damage: 10000,
-    cost: [1000, 10000, 100000, 1000000]
+    cost: [1000, 10000, 100000, 1000000],
+    visible: false
   }
 }
 
@@ -119,6 +133,8 @@ let autoHacks = {
     effectChance: 0.2,
     effectDmg: 3,
     descriptor: ''
+    ,
+    visible: false
   },
   selfDestruct: {
     damage: 10,
@@ -126,6 +142,8 @@ let autoHacks = {
     effectChance: 0.5,
     effectDmg: 15,
     descriptor: ''
+    ,
+    visible: false
   },
   robotInsurrection: {
     damage: 1000,
@@ -133,13 +151,16 @@ let autoHacks = {
     effectChance: 0.5,
     effectDmg: 15,
     descriptor: ''
+    ,
+    visible: false
   },
   globalLogicReprogram: {
     damage: 10000000000000, // This is a win
     cost: [1000000], // cost needs to be a condition
     effectChance: 0,
     effectDmg: 15,
-    descriptor: ''
+    descriptor: '',
+    visible: false
   }
 }
 
@@ -199,12 +220,31 @@ let bosses = [{
 ]
 
 // TODO need a check for if user is activating dual wield
+function ourConstantTimer(){
+  setInterval(() => {
+    updateAllVisibility()
+    drawAllStats()
+  },
+  180)
+}
 
 //NOTE this is the major all in one function
-function attack(enemy){
+function attackClick(enemy){
   if(isHit(enemy)){
-
+    if(enemy == player)
+    applyDamage()
   }
+}
+
+function attackAuto(){
+  let totalDam = 0;
+  totalDam += totalTurret()
+  totalDam += totalAutoHack()
+  applyDamage()
+}
+
+function bossAttack(){
+
 }
 
 function clearWanted(){
@@ -223,10 +263,10 @@ function clearWanted(){
 //Function list
 
 //Aggregate call to update all values: simple inside other functions
-function updateAll(){
-  updateWantedLevel
-  updateCounter
-  updateHealth
+function updateAllStats(){
+  updateWantedLevel()
+  updateCounter()
+  updateHealth()
 }
 
 function updateWantedLevel(){}
@@ -235,6 +275,20 @@ function updateCounter(){}
 
 function updateHealth(){}
 
+//All new items become visible when have attained half the cost
+function updateAllVisibility()
+
+function turretsVisible(){
+
+}
+function autoHacksVisible(){}
+function handWeaponsVisible(){}
+function defencePerksVisible()
+
+//Helper for all visible function
+function isVisible(cost){
+  return (counter[kills].hightestHeldKills > (cost / 6))
+}
 //Mod total for what?
 function modTotal(name){}
 
@@ -255,7 +309,10 @@ function isHit(attacked){
   return result
 }
 
-
+function drawPage(){
+  drawAllCounterInfo()
+  drawAllWeaponInfo()
+}
 
 
 
@@ -335,5 +392,7 @@ function isTooFast(){
   }, gameSettings.clickSpeed)
 }
 
+//invoke start
 drawRobot('basicEnemy')
 drawAllCounterInfo()
+ourConstantTimer()
