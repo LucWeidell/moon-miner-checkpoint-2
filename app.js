@@ -244,6 +244,50 @@ let bosses = [{
   }},
 ]
 
+function canPurchase(cost){
+  if(player.robotWallet >= cost){
+    player.robotWallet -= cost;
+    return true;
+  }
+  return false
+}
+
+//SECTION I am using 3 buys i can check every direcotry but
+// need a switch and more conditionals
+function buyHandWeapon(weap){
+  let weapon= handWeapons[weap]
+  if(weapon.cost.length = 0){
+    break;
+  }
+  if(canPurchase(weapon.cost[0])){
+    weapon.quantity += 1
+    player.heldWeapon = weap
+    weapon.cost.splice(0,1)
+
+  }
+}
+
+buyTurret(weap){
+  let weapon= turrets[weap]
+  if(weapon.cost.length = 0){
+    break;
+  }
+  if(canPurchase(weapon.cost[0])){
+    weapon.quantity += 1
+    weapon.cost.splice(0,1)
+  }
+}
+
+buyAutoHack(weap){
+  let weapon= autoHacks[weap]
+  if(weapon.cost.length = 0){
+    break;
+  }
+  if(canPurchase(weapon.cost[0])){
+    weapon.quantity += 1
+    weapon.cost.splice(0,1)
+  }
+}
 
 // TODO need a check for if user is activating dual wield
 function ourConstantTimer(){
@@ -326,10 +370,10 @@ function clearWanted(){
     player.robotWallet / 6)
 
   //If you cant afford nothing happens
-  if(player.robotWallet >= cost){
-    player.robotWallet -= cost;
-    player.wantedLevel = 0;
-    newBoss(0)
+    if (canPurchase) {
+      player.wantedLevel = 0;
+      newBoss(0)
+    }
   }
   updateCounter()
 }
@@ -438,9 +482,10 @@ function isHit(attacked){
 
 function drawPage(){
   let bossKey = gameSettings.currentBoss;
+  updateAllStats()
   drawAllCounterInfo()
   drawPlayerBuffs()
-  drawRobot(bossKey)
+  //drawRobot(bossKey)
   drawHealth(bossKey)
   drawHealth('player')
   drawAllWeaponInfo()
@@ -454,6 +499,7 @@ function drawAllCounterInfo(){
   template += templateWantedLevel();
   template += templateCounters();
   template += `<div>`
+  template +=
 
   document.getElementById('all-Counter-info').innerHTML = template;
 }
@@ -500,19 +546,6 @@ function drawHealth(targetBar){
   document.getElementById(`${target}`).innerHTML = template
 }
 
-function templateAutoHacker(){
-
-  return template;
-}
-
-function templateTurrets(){
-
-  return template;
-}
-
-function templateBetterWeapons(){
-  return template;
-}
 
 function templateWantedLevel(){
   let template = '`<div class="col-md-6" id="wanted-level">`'
@@ -523,7 +556,13 @@ function templateWantedLevel(){
   return template += `</div>`;
 }
 
-function templatePlayerBuffs(){}
+function templatePlayerBuffs(){
+  let template ='<div class="col-md-6" id = "body-upgrades">'
+  for (let keys in defencePerks){
+    template += `<button type="button" class="btn btn-primary btn-outline-secondary"
+    onclick="buyFood(${item.name})">Stay alive with more ${keys}! <br> Costs: ${defencePerks[keys].cost[0]} robots</button>`
+  }
+}
 function drawPlayerBuffs(){}
 
 function templateCounters(){
