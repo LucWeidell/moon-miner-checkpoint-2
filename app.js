@@ -128,7 +128,7 @@ let bosses = [{
     attackRate: 0.5,
     weakness: 'handCannon',
     weaknessMod: 2.8,
-    img: 'assets/img/evil_terminator.png'
+    img: 'assets/img/mech.jpg'
     }},
   { squadBasic: {
     health: 40,
@@ -138,7 +138,7 @@ let bosses = [{
     attackRate: 0.9,
     weakness: 'taser',
     weaknessMod: 3,
-    img: 'assets/img/evil_terminator.png'
+    img: 'assets/img/robot_squad.jpg'
     }},
   {squadMech: {
     health: 400,
@@ -148,7 +148,7 @@ let bosses = [{
     attackRate: 1.3,
     weakness: 'wire',
     weaknessMod: 8,
-    img: 'assets/img/evil_terminator.png'
+    img: 'assets/img/mech_squad.jpg'
   }},
   { robotArmy: {
     health: 1000000,
@@ -158,7 +158,7 @@ let bosses = [{
     attackRate: 15,
     weakness: 'lightSaber',
     weaknessMod: 400,
-    img: 'assets/img/evil_terminator.png'
+    img: 'assets/img/robot_army.png'
   }},
 ]
 
@@ -195,7 +195,7 @@ function drawRobot(key){
   let template = ''
   let object = bosses.find(element => Object.keys(element)[0] == key)
   console.log(object)
-  template += `<img src=${object[key].img} alt="Evil Robot">`
+  template += `<img src=${object[key].img} alt="Evil Robot" class="circular">`
   document.getElementById('robot').innerHTML = template;
 }
 
