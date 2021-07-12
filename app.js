@@ -4,6 +4,7 @@ let gameSettings = {
   clickSpeed: 5000,
   enemyAttack: 5000,
   cheating: false,
+  currentBoss: 'basicEnemy',
   currentBossHealth: 0,
   genocide: false,
   savior: false,
@@ -21,38 +22,44 @@ let player = {
   wantedLevel: 0,
   robotWallet: 0,
   heldWeapon: 'fist',
-  ownedWeapon: [{weapon: 'NAN', dualWield: false},] // This would be a prop field for weapons owned and dual wield status
+  ownedWeapon: [{weapon: 'fist', dualWield: false},] // This would be a prop field for weapons owned and dual wield status
 }
 
 let handWeapons = {
   fist: {
     damage: 5,
     cost: [1000,10000],
+    quantity: 0,
     visible: false
   },
   taser: {
     damage: 100,
     cost: [1000,10000],
+    quantity: 0,
     visible: false
   },
   whip: {
     damage: 1000,
     cost: [1000,10000],
+    quantity: 0,
     visible: false
   },
   wire: {
     damage: 10000,
     cost: [1000,10000],
+    quantity: 0,
     visible: false
   },
   handCannon: {
     damage: 10000,
     cost: [1000,10000],
+    quantity: 0,
     visible: false
   },
   lightSaber: {
     damage: 10000,
     cost: [1000,10000],
+    quantity: 0,
     visible: false
   }
 }
@@ -73,6 +80,7 @@ let counter = {
   }
 }
 
+//Doesnt really have a purpose
 let wantedLevels = [
   {harderEncounter: 0},
   {harderEncounter: 1},
@@ -178,46 +186,51 @@ let bosses = [{
     attackRate: 0,
     weakness: 'none',
     weaknessMod: 0,
+    winBonus: 0,
     img: 'assets/img/evil_terminator.png'
   }},
   { mechEnemy: {
-    health: 100,
+    health: 1000,
     evasion: .02,
     armor: .1,
     damage: 3,
     attackRate: 0.5,
     weakness: 'handCannon',
     weaknessMod: 2.8,
+    winBonus: 1800,
     img: 'assets/img/mech.png'
     }},
   { squadBasic: {
-    health: 40,
+    health: 4000,
     evasion: .1,
     armor: 0,
     damage: 7,
     attackRate: 0.9,
     weakness: 'taser',
     weaknessMod: 3,
+    winBonus: 4500,
     img: 'assets/img/robot_squad.png'
     }},
   {squadMech: {
-    health: 400,
+    health: 15000,
     evasion: .1,
     armor: .3,
     damage: 13,
     attackRate: 1.3,
     weakness: 'wire',
     weaknessMod: 8,
+    winBonus: 19000,
     img: 'assets/img/mech_squad.png'
   }},
   { robotArmy: {
-    health: 1000000,
+    health: 10000000,
     evasion: 0,
     armor: .5,
     damage: 35,
     attackRate: 15,
     weakness: 'lightSaber',
     weaknessMod: 400,
+    winBonus: 1000000,
     img: 'assets/img/robot_army.png'
   }},
 ]
@@ -226,19 +239,30 @@ let bosses = [{
 // TODO need a check for if user is activating dual wield
 function ourConstantTimer(){
   let interval = setInterval(() => {
+    let i = 1;
     if(finishChecker()){
       clearInterval(interval)
     }
 
+    attackAuto()
     updateAllVisibility()
     drawAllStats()
+    if(i % 300 == 0){
+      bossAttack(gameSettings.currentBoss)
+    }
   },
-  180)
+  300)
+}
+
+function returnToBasic(){
+  if (!(gameSettings.currentBoss > 0 && gameSettings.currentBoss == 'basicEnemy')){
+    drawRobot(basicEnemy)
+  }
 }
 
 //NOTE this is the major all in one function
-function attackClick(enemy){
-  let currentBoss = bosses.find(element => Object.keys(element)[0] == currentEnemy)
+function attackClick(){
+  let currentBoss = bosses.find(element => Object.keys(element)[0] == gameSettings.curr)
   if(isHit(enemy)){
     let damage = totalDam(currentBoss)
     damage = totalDmgTaken(enemy, damage)
@@ -247,16 +271,39 @@ function attackClick(enemy){
 }
 
 function attackAuto(){
-  let totalDam = 0;
-  totalDam += totalTurret()
-  totalDam += totalAutoHack()
-  applyDamage()
+  let autoDam = totalBaseAutoDmg()
+  let finalDam = totalDmgTaken(gameSettings.currentBoss, autoDam)
+  updateBossHealth(finalDam)
+}
+
+function totalBaseAutoDmg(){
+  totalBaseDamage(autoHacks)
+  totalBaseDamage(turrets)
+}
+
+//Returns the total base damage for any directory
+function totalBaseDamage(dictionary){
+  let total = 0
+  for (let keys in dictionary){
+    let element = dictionary[keys]
+    if(dictionary == autoHacks){
+      let effectChance = Math.rand();
+      while(effectChance <= element.effectChance){
+        total += element.effectDmg + element.damage
+        effectChance = Math.rand();
+      }
+      }
+    else {
+      total += element.damage * quantity
+    }
+    }
+    return total
 }
 
 
-function bossAttack(currentBoss){
+function bossAttack(){
   if(isHit('player')){
-    let currentBoss = bosses.find(element => Object.keys(element)[0] == currentEnemy)
+    let currentBoss = bosses.find(element => Object.keys(element)[0] == gameSettings.currentBoss)
     let damage = totalDam(currentBoss)
     damage = totalDmgTaken('player', damage)
     updatePlayerHealth(damage)
@@ -272,6 +319,7 @@ function clearWanted(){
   if(player.robotWallet >= cost){
     player.robotWallet -= cost;
     player.wantedLevel = 0;
+    newBoss(0)
   }
   updateCounter()
 }
@@ -293,6 +341,7 @@ function wantedLevelChange(fightingMod = 0){
   }
   player.wantedLevelChange +=change;
 }
+}
 
 //Function list
 
@@ -312,29 +361,39 @@ function totalDmgTaken(enemy = 'player', damage){
 function updatePlayerHealth(howMuch){
   player.health-=howMuch;
 }
-function updateBossHealth(howmuch){
-  gameSettings.currentBossHealth -= howMuch;
+function updateBossHealth(howMuch){
+  gameSettings.currentBossHealth = Math.max((gameSetting.currentBossHealth - howMuch), 0);
+  if(gameSetting.currentBossHealth==0 && gameSettings.currentBoss != 'basicEnemy'){
+    counter[kill].bossesKilled += 1;
+  } else {
+    counter[kill].totalKills += howMuch;
+
+  }
 }
 
 //All new items become visible when have attained half the cost
 function updateAllVisibility(){
-  turretsVisible()
-  autoHacksVisible()
-  handWeaponsVisible()
-  defencePerksVisible()
+  updateVisible(autoHacks)
+  updateVisible(turrets)
+  updateVisible(defencePerks)
+  updateVisible(handWeapons)
 }
 
-function turretsVisible(){
-
-  isVisible(100)
+//generic updater for visibility on all items
+//pass the target dictionary
+function updateVisible(dictionary){
+  for (let keys in dictionary){
+    let aElement = dictionary[keys];
+    if(aElement.visible){
+      continue;
+    }
+    aElement.visible = isVisible(aElement.cost[0])
 }
-function autoHacksVisible(){}
-function handWeaponsVisible(){}
-function defencePerksVisible(){}
+}
 
 //Helper for all visible function
 function isVisible(cost){
-  return (counter[kills].hightestHeldKills > (cost / 6))
+  return (counter[kills].hightestHeldKills > (cost / 2))
 }
 
 
@@ -357,8 +416,11 @@ function isHit(attacked){
 
 function drawPage(){
   drawAllCounterInfo()
+  drawPlayerBuffs()
+  drawRobot(gameSettings.currentBoss)
   drawAllWeaponInfo()
 }
+
 
 
 
@@ -403,6 +465,9 @@ function templateWantedLevel(){
   }
   return template += `</div>`;
 }
+
+function templatePlayerBuffs(){}
+function drawPlayerBuffs(){}
 
 function templateCounters(){
   template = `<div class="col-md-6" id="counters">`
@@ -454,6 +519,29 @@ function finishChecker(){
     return true
   }
   return false
+}
+
+function isNewBoss(){
+  new newBossChance = Math.rand()
+  if (gameSettings.currentBossHealth == 0 && gameSettings.currentBoss == 'basicEnemy'){
+    if(player.wantedLevel <= 2 && newBossChance > .95){
+      newBoss(Math.round(Math.rand() + .5))
+    } else if (player.wantedLevel <=4 && newBossChance > .65){
+      newBoss(Math.floor(Math.rand() + 2.5))
+    } else {
+      if(newBossChance > .50) {
+        newBoss(4)
+      }
+    }
+  }
+}
+
+function newBoss(indexOfBoss){
+  let incomingBoss = bosses[indexOfBoss];
+  gameSettings.currentBossHealth = incomingBoss.health
+  gameSettings.currentBoss = Object.keys(incomingBoss)[0]
+  drawRobot(gameSettings.currentBoss)
+  counter['bossesSeen'].totalBossesSeen += 1
 }
 
 function winGeno(){}
