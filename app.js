@@ -260,16 +260,32 @@ function clearWanted(){
   updateCounter()
 }
 
+//Wanted Level has increased odds of increasing if clicking
+function wantedLevelChange(fightingMod = 0){
+  let change= 0
+  odds = Math.random()+fightingMod
+  if(odds < .2){
+    change = -1;
+ if (odds >= .85){
+   change = 1;
+ }
+ if(player.wantedLevel == 4)
+  if (odds > .95){
+    player.wantedLevel += change
+  } else {
+    change = 0;
+  }
+  player.wantedLevelChange +=change;
+}
+
 //Function list
 
 //Aggregate call to update all values: simple inside other functions
 function updateAllStats(){
-  updateWantedLevel()
-  updateCounter()
+  wantedLevelChange()
   updateHealth()
 }
 
-function updateWantedLevel(){}
 
 function updateCounter(){}
 
