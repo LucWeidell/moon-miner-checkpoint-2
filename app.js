@@ -164,7 +164,7 @@ let bosses = [{
     attackRate: 0.5,
     weakness: 'handCannon',
     weaknessMod: 2.8,
-    img: 'assets/img/mech.psd'
+    img: 'assets/img/mech.png'
     }},
   { squadBasic: {
     health: 40,
@@ -174,7 +174,7 @@ let bosses = [{
     attackRate: 0.9,
     weakness: 'taser',
     weaknessMod: 3,
-    img: 'assets/img/robot_squad.psd'
+    img: 'assets/img/robot_squad.png'
     }},
   {squadMech: {
     health: 400,
@@ -184,7 +184,7 @@ let bosses = [{
     attackRate: 1.3,
     weakness: 'wire',
     weaknessMod: 8,
-    img: 'assets/img/mech_squad.psd'
+    img: 'assets/img/mech_squad.png'
   }},
   { robotArmy: {
     health: 1000000,
@@ -194,7 +194,7 @@ let bosses = [{
     attackRate: 15,
     weakness: 'lightSaber',
     weaknessMod: 400,
-    img: 'assets/img/robot_army.psd'
+    img: 'assets/img/robot_army.png'
   }},
 ]
 
