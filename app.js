@@ -4,7 +4,9 @@ let gameSettings = {
   clickSpeed: 5000,
   enemyAttack: 5000,
   cheating: false,
+
   currentBoss: 'basicEnemy',
+  currentBossMaxHealth: 0,
   currentBossHealth: 0,
   genocide: false,
   savior: false,
@@ -15,7 +17,8 @@ let gameSettings = {
 //    All objects in an array should have the say properties NEVER different
 //SECTION
 let player = {
-  health: 100,
+  maxHealth: 100,
+  currentHealth: 100,
   autoRevive: 0,
   evasion: 0,
   armor: 1,
@@ -262,10 +265,11 @@ function returnToBasic(){
 
 //NOTE this is the major all in one function
 function attackClick(){
-  let currentBoss = bosses.find(element => Object.keys(element)[0] == gameSettings.curr)
+  let bossKey = gameSettings.currentBoss
+  let currentBoss = bosses.find(element => Object.keys(element)[0] == bossKey)
   if(isHit(enemy)){
     let damage = totalDam(currentBoss)
-    damage = totalDmgTaken(enemy, damage)
+    damage = totalDmgTaken(bossKey, damage)
     updateBossHealth(damage)
   }
 }
@@ -287,10 +291,10 @@ function totalBaseDamage(dictionary){
   for (let keys in dictionary){
     let element = dictionary[keys]
     if(dictionary == autoHacks){
-      let effectChance = Math.rand();
+      let effectChance = Math.random();
       while(effectChance <= element.effectChance){
         total += element.effectDmg + element.damage
-        effectChance = Math.rand();
+        effectChance = Math.random();
       }
       }
     else {
@@ -359,7 +363,19 @@ function totalDmgTaken(enemy = 'player', damage){
 }
 
 function updatePlayerHealth(howMuch){
-  player.health-=howMuch;
+  player.currentHealth = Math.max((player.currentHealth - howMuch), 0);
+  if(player.currentHealth == 0){
+    if(player.autoRevive > 0){
+      player.currentHealth = player.maxHealth;
+      player.autoRevive -= 1
+    } else {
+      //Termporary using cheat to stop game
+      alert("You Died!")
+      gameSettings.cheated = true;
+    }
+
+  }
+
 }
 function updateBossHealth(howMuch){
   gameSettings.currentBossHealth = Math.max((gameSetting.currentBossHealth - howMuch), 0);
@@ -415,9 +431,12 @@ function isHit(attacked){
 }
 
 function drawPage(){
+  let bossKey = gameSettings.currentBoss;
   drawAllCounterInfo()
   drawPlayerBuffs()
-  drawRobot(gameSettings.currentBoss)
+  drawRobot(bossKey)
+  drawHealth(bossKey)
+  drawHealth('player')
   drawAllWeaponInfo()
 }
 
@@ -441,6 +460,32 @@ function drawRobot(key){
   template += `<h4> Robot Wallet = ${player.robotWallet} </h4>`
   template += `<img src=${object[key].img} alt="Evil Robot" class="circular" onClick('isTooFast()', attack(${key}))>`
   document.getElementById('robot').innerHTML = template;
+}
+
+function drawHealth(targetBar){
+  let health = 0;
+  let maxHealth = 0;
+  let target = ''
+  if(targetBar == 'player'){
+    health = player.currentHealth
+    maxHealth = player.maxHealth
+    target = 'player-health'
+  } else {
+    health = gameSettings.currentBossHealth
+    maxHealth = gameSettings.currentBossMaxHealth
+    target = 'robot-health'
+  }
+  if(gameSettings.currentBoss == 'basicEnemy'){
+    health = 1
+    maxHealth = 1
+  }
+  healthPercent = (health / maxHealth) * 100
+
+  let template = ''
+  template = `<div class="progress-bar bg-danger progress-bar-striped progress-bar-animated" role="progressbar"
+  style="width: ${healthPercent}%; height: 30px " aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>`
+
+  document.getElementById(`${target}`).innerHTML = template
 }
 
 function templateAutoHacker(){
@@ -522,12 +567,12 @@ function finishChecker(){
 }
 
 function isNewBoss(){
-  new newBossChance = Math.rand()
+  let newBossChance = Math.random()
   if (gameSettings.currentBossHealth == 0 && gameSettings.currentBoss == 'basicEnemy'){
     if(player.wantedLevel <= 2 && newBossChance > .95){
-      newBoss(Math.round(Math.rand() + .5))
+      newBoss(Math.round(Math.random() + .5))
     } else if (player.wantedLevel <=4 && newBossChance > .65){
-      newBoss(Math.floor(Math.rand() + 2.5))
+      newBoss(Math.floor(Math.random() + 2.5))
     } else {
       if(newBossChance > .50) {
         newBoss(4)
@@ -538,6 +583,7 @@ function isNewBoss(){
 
 function newBoss(indexOfBoss){
   let incomingBoss = bosses[indexOfBoss];
+  gameSettings.currentBossMaxHealth = incomingBoss.health
   gameSettings.currentBossHealth = incomingBoss.health
   gameSettings.currentBoss = Object.keys(incomingBoss)[0]
   drawRobot(gameSettings.currentBoss)
