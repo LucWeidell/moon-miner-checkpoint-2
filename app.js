@@ -121,21 +121,25 @@ let turrets = {
   machineGun: {
     damage: 5,
     cost: [1000, 10000, 100000, 1000000],
+    quantity: 0,
     visible: false
   },
   missile: {
     damage: 100,
     cost: [1000, 10000, 100000, 1000000],
+    quantity: 0,
     visible: false
   },
   metallicDismantler: {
     damage: 1000,
     cost: [1000, 10000, 100000, 1000000],
+    quantity: 0,
     visible: false
   },
   deathRay: {
     damage: 10000,
     cost: [1000, 10000, 100000, 1000000],
+    quantity: 0,
     visible: false
   }
 }
@@ -146,8 +150,8 @@ let autoHacks = {
     cost: 10,
     effectChance: 0.2,
     effectDmg: 3,
-    descriptor: ''
-    ,
+    descriptor: '',
+    quantity: 0,
     visible: false
   },
   selfDestruct: {
@@ -155,8 +159,8 @@ let autoHacks = {
     cost: 100,
     effectChance: 0.5,
     effectDmg: 15,
-    descriptor: ''
-    ,
+    descriptor: '',
+    quantity: 0,
     visible: false
   },
   robotInsurrection: {
@@ -164,6 +168,7 @@ let autoHacks = {
     cost: [1000, 10000, 100000, 1000000],
     effectChance: 0.5,
     effectDmg: 15,
+    quantity: 0,
     descriptor: ''
     ,
     visible: false
@@ -173,6 +178,7 @@ let autoHacks = {
     cost: [1000000], // cost needs to be a condition
     effectChance: 0,
     effectDmg: 15,
+    quantity: 0,
     descriptor: '',
     visible: false
   }
@@ -249,7 +255,7 @@ function ourConstantTimer(){
 
     attackAuto()
     updateAllVisibility()
-    drawAllStats()
+    drawPage()
     if(i % 300 == 0){
       bossAttack(gameSettings.currentBoss)
     }
@@ -298,7 +304,7 @@ function totalBaseDamage(dictionary){
       }
       }
     else {
-      total += element.damage * quantity
+      total += element.damage * element.quantity
     }
     }
     return total
@@ -317,7 +323,7 @@ function bossAttack(){
 function clearWanted(){
   let cost = Math.max(
     player.wantedLevel * (counter.hightestHeldKills) / 40,
-    robotWallet / 6)
+    player.robotWallet / 6)
 
   //If you cant afford nothing happens
   if(player.robotWallet >= cost){
@@ -378,11 +384,11 @@ function updatePlayerHealth(howMuch){
 
 }
 function updateBossHealth(howMuch){
-  gameSettings.currentBossHealth = Math.max((gameSetting.currentBossHealth - howMuch), 0);
-  if(gameSetting.currentBossHealth==0 && gameSettings.currentBoss != 'basicEnemy'){
-    counter[kill].bossesKilled += 1;
+  gameSettings.currentBossHealth = Math.max((gameSettings.currentBossHealth - howMuch), 0);
+  if(gameSettings.currentBossHealth==0 && gameSettings.currentBoss != 'basicEnemy'){
+    counter['kill'].bossesKilled += 1;
   } else {
-    counter[kill].totalKills += howMuch;
+    counter['kill'].totalKills += howMuch;
 
   }
 }
@@ -409,7 +415,7 @@ function updateVisible(dictionary){
 
 //Helper for all visible function
 function isVisible(cost){
-  return (counter[kills].hightestHeldKills > (cost / 2))
+  return (counter['kill'].hightestHeldKills > (cost / 2))
 }
 
 
@@ -470,20 +476,26 @@ function drawHealth(targetBar){
     health = player.currentHealth
     maxHealth = player.maxHealth
     target = 'player-health'
-  } else {
+    input = 'Your HP'
+  } else if(gameSettings.currentBoss == 'basicEnemy'){
+    health = 1
+    maxHealth = 1
+    target = 'robot-health'
+    input = 'robot'
+  }
+  else {
     health = gameSettings.currentBossHealth
     maxHealth = gameSettings.currentBossMaxHealth
     target = 'robot-health'
+    input = 'Boss HP'
   }
-  if(gameSettings.currentBoss == 'basicEnemy'){
-    health = 1
-    maxHealth = 1
-  }
+
   healthPercent = (health / maxHealth) * 100
 
   let template = ''
-  template = `<div class="progress-bar bg-danger progress-bar-striped progress-bar-animated" role="progressbar"
-  style="width: ${healthPercent}%; height: 30px " aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>`
+  template = `<div class="progress-bar bg-danger progress-bar-striped progress-bar-animated text-light my-3" role="progressbar"
+  style="width: ${healthPercent}%; height: 30px " aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+  <h4>${input}: ${health}/${maxHealth}</div>`
 
   document.getElementById(`${target}`).innerHTML = template
 }
