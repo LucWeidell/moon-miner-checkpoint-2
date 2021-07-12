@@ -1,5 +1,13 @@
 //NOTE an important NOTE
 //    Design Priniciple:
+// SECTION global speed of game: done in ms (1000ms = 1 sec)
+let gameSettings = {
+  clickSpeed: 50,
+  enemyAttack: 5000,
+  cheating: false,
+  currentBossHealth: 0
+}
+
 //    All objects in an array should have the say properties NEVER different
 //SECTION
 let player = {
@@ -14,7 +22,7 @@ let player = {
 
 let counter = {
   kill: {
-    totalkills: 0,
+    totalKills: 0,
     hightestHeldKills: 0
   },
   bossesSeen: {
@@ -195,7 +203,7 @@ function drawRobot(key){
   let template = ''
   let object = bosses.find(element => Object.keys(element)[0] == key)
   console.log(object)
-  template += `<img src=${object[key].img} alt="Evil Robot" class="circular">`
+  template += `<img src=${object[key].img} alt="Evil Robot" class="circular" onClick('isTooFast()', )>`
   document.getElementById('robot').innerHTML = template;
 }
 
@@ -227,7 +235,7 @@ function templateCounters(){
   for (let keys in counter){
     switch(keys){
       case 'kill':
-        template += `<h5>Total Kills: ${counter[keys].totalkills}</h5>
+        template += `<h5>Total Kills: ${counter[keys].totalKills}</h5>
         <h5>Max Kills Held: ${counter[keys].hightestHeldKills}</h5><br>`
         break;
       case 'bossesSeen':
@@ -244,6 +252,17 @@ function templateCounters(){
   return template += `</div>`;
 }
 
+function isTooFast(){
+  if(gameSettings.cheating){
+    player.health = 0;
+    alert(`You have betrayed humanity and become a machine. Failure!`)
+  }
+  setTimeout(() => {
+    player.cheating = true;
+  }, 60)
+
+  player.cheating = false;
+}
 
 drawRobot('basicEnemy')
 drawAllCounterInfo()
