@@ -14,10 +14,38 @@ let player = {
   health: 100,
   autoRevive: 0,
   evasion: 0,
-  armor: 0,
+  armor: 1,
   wantedLevel: 0,
-  heldWeapon: 'NAN',
+  robotWallet: 0,
+  heldWeapon: 'fist',
   ownedWeapon: [{weapon: 'NAN', dualWield: false},] // This would be a prop field for weapons owned and dual wield status
+}
+
+let handWeapons = {
+  fist: {
+    damage: 5,
+    cost: [1000,10000]
+  },
+  taser: {
+    damage: 100,
+    cost: [1000,10000]
+  },
+  whip: {
+    damage: 1000,
+    cost: [1000,10000]
+  },
+  wire: {
+    damage: 10000,
+    cost: [1000,10000]
+  },
+  handCannon: {
+    damage: 10000,
+    cost: [1000,10000]
+  },
+  lightSaber: {
+    damage: 10000,
+    cost: [1000,10000]
+  }
 }
 
 let counter = {
@@ -52,11 +80,11 @@ let defencePerks = {
     cost: [1000, 10000, 100000, 1000000]
   },
   addEvasion: {
-    increase: 10,
+    increase: .10,
     cost: [1000, 10000, 100000, 1000000]
   },
   addRevive: {
-    increase: 10,
+    increase: 1,
     cost: [100, 1000, 10000, 100000]
   },
   addArmor: {
@@ -179,7 +207,27 @@ function attack(enemy){
   }
 }
 
+function clearWanted(){
+  let cost = Math.max(
+    player.wantedLevel * (counter.hightestHeldKills) / 40,
+    robotWallet / 6)
+
+  //If you cant afford nothing happens
+  if(player.robotWallet >= cost){
+    player.robotWallet -= cost;
+    player.wantedLevel = 0;
+  }
+  updateCounter()
+}
+
 //Function list
+
+//Aggregate call to update all values: simple inside other functions
+function updateAll(){
+  updateWantedLevel
+  updateCounter
+  updateHealth
+}
 
 function updateWantedLevel(){}
 
@@ -225,7 +273,7 @@ function drawAllWeaponInfo(){}
 function drawRobot(key){
   let template = ''
   let object = bosses.find(element => Object.keys(element)[0] == key)
-  console.log(object)
+  template += `<h4> Robot Wallet = ${player.robotWallet} </h4>`
   template += `<img src=${object[key].img} alt="Evil Robot" class="circular" onClick('isTooFast()', attack(${key}))>`
   document.getElementById('robot').innerHTML = template;
 }
@@ -263,7 +311,7 @@ function templateCounters(){
         break;
       case 'bossesSeen':
         template += `<h5>Bosses Killed: ${counter[keys].bossesKilled}</h5>
-        <h5>Bosses Seen: ${counter[keys].hightestHeldKills}</h5><br>`
+        <h5>Bosses Seen: ${counter[keys].totalBossesSeen}</h5><br>`
         break;
       case 'hitsTaken':
         template += `<h5>Damage Received: ${counter[keys].totalDmgTaken}</h5>
