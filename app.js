@@ -230,9 +230,11 @@ function ourConstantTimer(){
 
 //NOTE this is the major all in one function
 function attackClick(enemy){
+  let currentBoss = bosses.find(element => Object.keys(element)[0] == currentEnemy)
   if(isHit(enemy)){
-    if(enemy == player)
-    applyDamage()
+    let damage = totalDam(currentBoss)
+    damage = totalDmgTaken(enemy, damage)
+    updateBossHealth(damage)
   }
 }
 
@@ -243,8 +245,14 @@ function attackAuto(){
   applyDamage()
 }
 
-function bossAttack(){
 
+function bossAttack(currentBoss){
+  if(isHit('player')){
+    let currentBoss = bosses.find(element => Object.keys(element)[0] == currentEnemy)
+    let damage = totalDam(currentBoss)
+    damage = totalDmgTaken('player', damage)
+    updatePlayerHealth(damage)
+  }
 }
 
 function clearWanted(){
@@ -288,8 +296,17 @@ function updateAllStats(){
 
 
 function updateCounter(){}
+// TODO dameg calculator
+function totalDmgTaken(enemy = 'player', damage){
 
-function updateHealth(){}
+}
+
+function updatePlayerHealth(howMuch){
+  player.health-=howMuch;
+}
+function updateBossHealth(howmuch){
+  gameSettings.currentBossHealth -= howMuch;
+}
 
 //All new items become visible when have attained half the cost
 function updateAllVisibility()
@@ -299,14 +316,13 @@ function turretsVisible(){
 }
 function autoHacksVisible(){}
 function handWeaponsVisible(){}
-function defencePerksVisible()
+function defencePerksVisible(){}
 
 //Helper for all visible function
 function isVisible(cost){
   return (counter[kills].hightestHeldKills > (cost / 6))
 }
-//Mod total for what?
-function modTotal(name){}
+
 
 //determines did the attack work
 function isHit(attacked){
