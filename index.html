@@ -15,7 +15,7 @@
 <body class = "debug">
   <!-- Header -->
   <header class= "container-fluid">
-    <div class="row sticky-top">
+    <div class="row sticky-top bg-primary navbar-dark">
       <div class="col ">
         <!-- Audio injected -->
         <audio controls autoplay>
@@ -31,7 +31,7 @@
 
   <!-- Main -->
   <main class= "container-fluid">
-    <div class="row bg-secondary">
+    <div class="row bg-dark">
       <!-- Counter info + Wanted -->
       <div class="col-md-6" id="all-Counter-info">
       <div class="row">
@@ -44,13 +44,13 @@
     </div>
     <!-- Robot pic -->
     <div class="row justify-content-center">
-      <div class="col" id = "robot">
+      <div class="col text-center" id = "robot">
       </div>
     </div>
     <!-- Clear rampancy button -->
     <div class="row justify-content-center">
-      <div class="col" id = "robot">
-        <button type="button" class="btn btn-primary btn-outline-secondary">
+      <div class="col text-al" id = "robot">
+        <button type="button" class="btn btn-primary btn-outline-secondary" onclick="clearWanted()">
           <p>R1, R1, CIRCLE, R2, RIGHT, LEFT, RIGHT, LEFT, RIGHT, LEFT<br>Clear Your Wanted Level</p>
         </button>
       </div>
