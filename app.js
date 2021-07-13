@@ -272,7 +272,7 @@ function updateMaxHeld(){
 // need a switch and more conditionals
 function buyHandWeapon(weap){
   let weapon= handWeapons[weap]
-  if(weapon.cost.length = 0){
+  if(weapon.cost.length == 0){
     return '';
   }
   if(canPurchase(weapon.cost[0])){
@@ -285,7 +285,7 @@ function buyHandWeapon(weap){
 
 function buyTurret(weap){
   let weapon= turrets[weap]
-  if(weapon.cost.length = 0){
+  if(weapon.cost.length == 0){
     return '';
   }
   if(canPurchase(weapon.cost[0])){
@@ -298,7 +298,7 @@ function buyTurret(weap){
 
 function buyAutoHack(weap){
   let weapon= autoHacks[weap]
-  if(weapon.cost.length = 0){
+  if(typeof weapon != number){
     return '';
   }
   if(canPurchase(weapon.cost)){
@@ -308,7 +308,7 @@ function buyAutoHack(weap){
 
 function buyBuff(perk){
   let buff= defencePerks[perk]
-  if(buff.cost.length = 0){
+  if(buff.cost.length ==0){
     return '';
   }
   if(canPurchase(buff.cost[0])){
@@ -324,7 +324,7 @@ function ourConstantTimer(){
     if(finishChecker()){
       clearInterval(interval)
     }
-
+    console.log('machine', turrets['machineGun'].quantity)
     attackAuto()
     updateAllVisibility()
     drawPage()
@@ -347,7 +347,6 @@ function attackClick(){
   let currentBoss = bosses.find(element => Object.keys(element)[0] == bossKey)
   if(isHit(bossKey)){
     let damage = totalDamClick()
-    console.log('totalDmgTaken:', totalDmgTaken(bossKey, damage))
     damage = totalDmgTaken(bossKey, damage)
     updateBossHealth(damage)
   }
@@ -355,7 +354,6 @@ function attackClick(){
 
 function totalDamClick(){
   let weapon = handWeapons[player.heldWeapon]
-  console.log('totalDamClick:', (weapon.damage * weapon.quantity))
   return weapon.damage * weapon.quantity
 
 }
@@ -363,7 +361,6 @@ function totalDamClick(){
 function attackAuto(){
   let autoDam = totalBaseAutoDmg()
   let finalDam = totalDmgTaken(gameSettings.currentBoss, autoDam)
-  console.log('finalDam:', finalDam)
   updateBossHealth(finalDam)
 }
 
@@ -538,7 +535,6 @@ function drawPage(){
   drawHealth('player')
   drawAllWeaponInfo()
   drawWallet()
-  console.log('wallet:', player.robotWallet)
 }
 
 
@@ -712,7 +708,6 @@ function templateCounters(){
 }
 
 function isTooFast(){
-  console.log(gameSettings.cheating)
   if(gameSettings.cheating){
     player.health = 0;
     alert(`You have betrayed humanity and become a machine. Failure! (auto-revives dont work on robots)`)
