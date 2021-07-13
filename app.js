@@ -103,21 +103,25 @@ let defencePerks = {
   addHealth: {
     increase: 10,
     cost: [1000, 10000, 100000, 1000000],
+    quantity: 0,
     visible: false
   },
   addEvasion: {
     increase: .10,
     cost: [1000, 10000, 100000, 1000000],
+    quantity: 0,
     visible: false
   },
   addRevive: {
     increase: 1,
     cost: [100, 1000, 10000, 100000],
+    quantity: 0,
     visible: false
   },
   addArmor: {
     increase: 10,
     cost: [1000, 10000, 100000, 1000000],
+    quantity: 0,
     visible: false
   },
 }
@@ -132,7 +136,7 @@ let turrets = {
   missile: {
     damage: 100,
     cost: [1000, 10000, 100000, 1000000],
-    quantity: 0,
+    quantity: 1,
     visible: false
   },
   metallicDismantler: {
@@ -286,6 +290,7 @@ function buyTurret(weap){
   }
   if(canPurchase(weapon.cost[0])){
     weapon.quantity += 1
+    console.log('increase', turrets[weap].quantity)
     weapon.cost.splice(0,1)
   }
 }
@@ -295,9 +300,8 @@ function buyAutoHack(weap){
   if(weapon.cost.length = 0){
     return '';
   }
-  if(canPurchase(weapon.cost[0])){
+  if(canPurchase(weapon.cost)){
     weapon.quantity += 1
-    weapon.cost.splice(0,1)
   }
 }
 
@@ -341,7 +345,6 @@ function attackClick(){
   let bossKey = gameSettings.currentBoss
   let currentBoss = bosses.find(element => Object.keys(element)[0] == bossKey)
   if(isHit(bossKey)){
-    debugger
     let damage = totalDamClick()
     console.log('totalDmgTaken:', totalDmgTaken(bossKey, damage))
     damage = totalDmgTaken(bossKey, damage)
@@ -534,6 +537,7 @@ function drawPage(){
   drawHealth('player')
   drawAllWeaponInfo()
   drawWallet()
+  console.log('wallet:', player.robotWallet)
 }
 
 
@@ -551,10 +555,11 @@ function drawAllCounterInfo(){
 
 function drawAllWeaponInfo(){
   let template = ''
+  template+= `<div class="row">`
   template += templateAutoHacks();
   template += templateTurrets();
   template += templateHandWeaps();
-
+  template += `</div>`
   document.getElementById('all-weapons').innerHTML = template;
 }
 
@@ -563,11 +568,11 @@ function templateAutoHacks(){
   for (let keys in autoHacks){
     let item = autoHacks[keys];
     if(item.visible){
-      template += `<button type="button" class="btn btn-primary btn-outline-secondary visible"
-      onClick="buyAutoHack(${keys})">Break their system with ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
+      template += `<button type="button" class="m-1 btn btn-primary btn-outline-secondary visible"
+      onClick="buyAutoHack('${keys}')">Break their system with ${keys}! <br> Costs: ${item.cost} robots</button>`
     } else {
-      template += `<button type="button" class="btn btn-primary btn-outline-secondary invisible"
-      onClick="buyAuto(${keys})">Break their system with ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
+      template += `<button type="button" class="m-1 btn btn-primary btn-outline-secondary invisible"
+      onClick="buyAuto('${keys}')">Break their system with ${keys}! <br> Costs: ${item.cost} robots</button>`
     }
   }
   template += '</div>'
@@ -579,11 +584,11 @@ function templateTurrets(){
   for (let keys in turrets){
     let item = turrets[keys];
     if(item.visible){
-      template += `<button type="button" class="btn btn-primary btn-outline-secondary visible"
-      onClick="buyAutoHack(${keys})">Mow them down with automated ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
+      template += `<button type="button" class="m-1 btn btn-primary btn-outline-secondary visible"
+      onClick="buyAutoHack('${keys}')">Mow them down with automated ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
     } else {
-      template += `<button type="button" class="btn btn-primary btn-outline-secondary invisible"
-      onClick="buyTurret(${keys})">Mow them down with automated ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
+      template += `<button type="button" class="m-1 btn btn-primary btn-outline-secondary invisible"
+      onClick="buyTurret('${keys}')">Mow them down with automated ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
     }
   }
   template += '</div>'
@@ -594,11 +599,11 @@ function templateHandWeaps(){
   for (let keys in handWeapons){
     let item = handWeapons[keys];
     if(item.visible){
-      template += `<button type="button" class="btn btn-primary btn-outline-secondary visible"
-      onClick="buyHandWeapon(${keys})">Get personal with your ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
+      template += `<button type="button" class="m-1 btn btn-primary btn-outline-secondary visible"
+      onClick="buyHandWeapon('${keys}')">Get personal with your ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
     } else {
-      template += `<button type="button" class="btn btn-primary btn-outline-secondary invisible"
-      onClick="buyHandWeapon(${keys})">Get personal with your ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
+      template += `<button type="button" class="m-1 btn btn-primary btn-outline-secondary invisible"
+      onClick="buyHandWeapon('${keys}')">Get personal with your ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
     }
   }
   template += '</div>'
@@ -616,7 +621,7 @@ function drawWallet(){
 function drawRobot(key){
   let template = ''
   let object = bosses.find(element => Object.keys(element)[0] == key)
-  template += `<img src=${object[key].img} alt="Evil Robot" class="w-100 h-100 circular" onClick='isTooFast(); 'attackClick();')>`
+  template += `<img src=${object[key].img} alt="Evil Robot" class="w-100 h-100 circular" onClick='isTooFast(); attackClick();')>`
   document.getElementById('robot').innerHTML = template;
 }
 
@@ -668,10 +673,10 @@ function templatePlayerBuffs(){
     let item = defencePerks[keys];
     if(item.visible){
       template += `<button type="button" class="p-1 btn btn-primary btn-outline-secondary visible"
-      onClick="buyBuff(${keys})">Stay alive with more ${keys}! <br> Costs: ${defencePerks[keys].cost[0]} robots</button>`
+      onClick="buyBuff('${keys}')">Stay alive with more ${keys}! <br> Costs: ${defencePerks[keys].cost[0]} robots</button>`
     } else {
       template += `<button type="button" class=" p-1 btn btn-primary btn-outline-secondary invisible"
-      onClick="buyBuff(${keys})">Stay alive with more ${keys}! <br> Costs: ${defencePerks[keys].cost[0]} robots</button>`
+      onClick="buyBuff('${keys}')">Stay alive with more ${keys}! <br> Costs: ${defencePerks[keys].cost[0]} robots</button>`
     }
   }
   template += '</div>'
