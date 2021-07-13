@@ -174,7 +174,7 @@ let autoHacks = {
   },
   robotInsurrection: {
     damage: 1000,
-    cost: [1000, 10000, 100000, 1000000],
+    cost: 100000000,
     effectChance: 0.5,
     effectDmg: 15,
     quantity: 0,
@@ -184,7 +184,7 @@ let autoHacks = {
   },
   globalLogicReprogram: {
     damage: 10000000000000, // This is a win
-    cost: [1000000], // cost needs to be a condition
+    cost: 1000000000, // cost needs to be a condition
     effectChance: 0,
     effectDmg: 15,
     quantity: 0,
@@ -290,7 +290,7 @@ function buyTurret(weap){
   }
   if(canPurchase(weapon.cost[0])){
     weapon.quantity += 1
-    console.log('increase', turrets[weap].quantity)
+    //console.log('increase', turrets[weap].quantity)
     turrets[weap].quantity +=1
     turrets[weap].cost.splice(0,1)
   }
@@ -298,7 +298,7 @@ function buyTurret(weap){
 
 function buyAutoHack(weap){
   let weapon= autoHacks[weap]
-  if(typeof weapon != number){
+  if(typeof weapon.cost != number){
     return '';
   }
   if(canPurchase(weapon.cost)){
@@ -324,7 +324,7 @@ function ourConstantTimer(){
     if(finishChecker()){
       clearInterval(interval)
     }
-    console.log('machine', turrets['machineGun'].quantity)
+    //console.log('machine', turrets['machineGun'].quantity)
     attackAuto()
     updateAllVisibility()
     drawPage()
@@ -499,7 +499,12 @@ function updateVisible(dictionary){
     if(aElement.visible){
       continue;
     }
-    aElement.visible = isVisible(aElement.cost[0])
+    if(dictionary == autoHacks){
+      aElement.visible = isVisible(aElement.cost)
+    } else{
+      aElement.visible = isVisible(aElement.cost[0])
+    }
+
 }
 }
 
@@ -562,6 +567,7 @@ function drawAllWeaponInfo(){
 
 function templateAutoHacks(){
   let template ='<div class="col-md-6" id = "auto-hackers">'
+  template += `<h3>Purchase Hacking Devices</h3>`
   for (let keys in autoHacks){
     let item = autoHacks[keys];
     if(item.visible){
@@ -569,7 +575,7 @@ function templateAutoHacks(){
       onClick="buyAutoHack('${keys}')">Break their system with ${keys}! <br> Costs: ${item.cost} robots</button>`
     } else {
       template += `<button type="button" class="m-1 btn btn-primary btn-outline-secondary invisible"
-      onClick="buyAuto('${keys}')">Break their system with ${keys}! <br> Costs: ${item.cost} robots</button>`
+      onClick="buyAutoHack('${keys}')">Break their system with ${keys}! <br> Costs: ${item.cost} robots</button>`
     }
   }
   template += '</div>'
@@ -578,6 +584,7 @@ function templateAutoHacks(){
 
 function templateTurrets(){
   let template ='<div class="col-md-6" id = "turrets">'
+  template += `<h3>Purchase Turrets</h3>`
   for (let keys in turrets){
     let item = turrets[keys];
     if(item.visible){
@@ -593,6 +600,7 @@ function templateTurrets(){
 }
 function templateHandWeaps(){
   let template ='<div class="col-md-6" id = "hand-weapon">'
+  template += `<h3>Purchase Hand Weapons (upgrade clicker)</h3>`
   for (let keys in handWeapons){
     let item = handWeapons[keys];
     if(item.visible){
@@ -666,6 +674,7 @@ function templateWantedLevel(){
 
 function templatePlayerBuffs(){
   let template =`<div class="col-md-6" id = "body-upgrades">`
+  template += `<h3>Purchase Plyer Defences:</h3>`
   for (let keys in defencePerks){
     let item = defencePerks[keys];
     if(item.visible){
@@ -698,7 +707,8 @@ function templateCounters(){
         <h5>Heals Used: ${counter[keys].totalHeals}</h5>`
         break;
       case 'damage':
-          template += `<h5>Hacks: ${totalBaseDamage(autoHacks)}</h5>
+          template += ` <h3>Your Damage Power:</h3>
+          <h5>Hacks: ${totalBaseDamage(autoHacks)}</h5>
           <h5>Turrets: ${totalBaseDamage(turrets)}</h5>
           <h5>Held Weapon: ${totalDamClick()}</h5>`
           break;
