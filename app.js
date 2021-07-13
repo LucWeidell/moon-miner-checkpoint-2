@@ -23,7 +23,7 @@ let player = {
   evasion: 0,
   armor: 1,
   wantedLevel: 0,
-  robotWallet: 2000,
+  robotWallet: 0,
   heldWeapon: 'fist',
   ownedWeapon: [{weapon: 'fist', dualWield: false},] // This would be a prop field for weapons owned and dual wield status
 }
@@ -129,14 +129,14 @@ let defencePerks = {
 let turrets = {
   machineGun: {
     damage: 5,
-    cost: [1000, 10000, 100000, 1000000],
+    cost: [5, 10000, 100000, 1000000],
     quantity: 0,
     visible: false
   },
   missile: {
     damage: 100,
     cost: [1000, 10000, 100000, 1000000],
-    quantity: 1,
+    quantity: 0,
     visible: false
   },
   metallicDismantler: {
@@ -291,7 +291,8 @@ function buyTurret(weap){
   if(canPurchase(weapon.cost[0])){
     weapon.quantity += 1
     console.log('increase', turrets[weap].quantity)
-    weapon.cost.splice(0,1)
+    turrets[weap].quantity +=1
+    turrets[weap].cost.splice(0,1)
   }
 }
 
@@ -301,7 +302,7 @@ function buyAutoHack(weap){
     return '';
   }
   if(canPurchase(weapon.cost)){
-    weapon.quantity += 1
+    autoHacks[weap].quantity +=1
   }
 }
 
@@ -311,8 +312,8 @@ function buyBuff(perk){
     return '';
   }
   if(canPurchase(buff.cost[0])){
-    buff.quantity += 1
-    buff.cost.splice(0,1)
+    defencePerks[perk].quantity +=1
+    defencePerks[perk].cost.splice(0,1)
   }
 }
 
@@ -585,7 +586,7 @@ function templateTurrets(){
     let item = turrets[keys];
     if(item.visible){
       template += `<button type="button" class="m-1 btn btn-primary btn-outline-secondary visible"
-      onClick="buyAutoHack('${keys}')">Mow them down with automated ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
+      onClick="buyTurret('${keys}')">Mow them down with automated ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
     } else {
       template += `<button type="button" class="m-1 btn btn-primary btn-outline-secondary invisible"
       onClick="buyTurret('${keys}')">Mow them down with automated ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
