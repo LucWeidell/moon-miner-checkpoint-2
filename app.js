@@ -1,7 +1,7 @@
 //NOTE an important NOTE
 // SECTION global speed of game: done in ms (1000ms = 1 sec)
 let gameSettings = {
-  clickSpeed: 5000,
+  clickSpeed: 180,
   enemyAttack: 5000,
   cheating: false,
 
@@ -23,7 +23,7 @@ let player = {
   evasion: 0,
   armor: 1,
   wantedLevel: 0,
-  robotWallet: 0,
+  robotWallet: 2000,
   heldWeapon: 'fist',
   ownedWeapon: [{weapon: 'fist', dualWield: false},] // This would be a prop field for weapons owned and dual wield status
 }
@@ -31,8 +31,8 @@ let player = {
 let handWeapons = {
   fist: {
     damage: 5,
-    cost: [1000,10000],
-    quantity: 0,
+    cost: [1000],
+    quantity: 1,
     visible: false
   },
   taser: {
@@ -80,6 +80,11 @@ let counter = {
     totalDmgTaken: 0,
     totalRevives: 0,
     totalHeals: 0
+  },
+  damage: {
+    autoHacks: 0,
+    turrets: 0,
+    cuurentWeap: 5
   }
 }
 
@@ -252,12 +257,19 @@ function canPurchase(cost){
   return false
 }
 
+function updateMaxHeld(){
+  if(player.robotWallet > counter['kill'].hightestHeldKills){
+    counter['kill'].hightestHeldKills = player.robotWallet;
+  }
+}
+
+
 //SECTION I am using 3 buys i can check every direcotry but
 // need a switch and more conditionals
 function buyHandWeapon(weap){
   let weapon= handWeapons[weap]
   if(weapon.cost.length = 0){
-    break;
+    return '';
   }
   if(canPurchase(weapon.cost[0])){
     weapon.quantity += 1
@@ -267,10 +279,10 @@ function buyHandWeapon(weap){
   }
 }
 
-buyTurret(weap){
+function buyTurret(weap){
   let weapon= turrets[weap]
   if(weapon.cost.length = 0){
-    break;
+    return '';
   }
   if(canPurchase(weapon.cost[0])){
     weapon.quantity += 1
@@ -278,14 +290,25 @@ buyTurret(weap){
   }
 }
 
-buyAutoHack(weap){
+function buyAutoHack(weap){
   let weapon= autoHacks[weap]
   if(weapon.cost.length = 0){
-    break;
+    return '';
   }
   if(canPurchase(weapon.cost[0])){
     weapon.quantity += 1
     weapon.cost.splice(0,1)
+  }
+}
+
+function buyBuff(perk){
+  let buff= defencePerks[perk]
+  if(buff.cost.length = 0){
+    return '';
+  }
+  if(canPurchase(buff.cost[0])){
+    buff.quantity += 1
+    buff.cost.splice(0,1)
   }
 }
 
@@ -317,22 +340,34 @@ function returnToBasic(){
 function attackClick(){
   let bossKey = gameSettings.currentBoss
   let currentBoss = bosses.find(element => Object.keys(element)[0] == bossKey)
-  if(isHit(enemy)){
-    let damage = totalDam(currentBoss)
+  if(isHit(bossKey)){
+    debugger
+    let damage = totalDamClick()
+    console.log('totalDmgTaken:', totalDmgTaken(bossKey, damage))
     damage = totalDmgTaken(bossKey, damage)
     updateBossHealth(damage)
   }
 }
 
+function totalDamClick(){
+  let weapon = handWeapons[player.heldWeapon]
+  console.log('totalDamClick:', (weapon.damage * weapon.quantity))
+  return weapon.damage * weapon.quantity
+
+}
+
 function attackAuto(){
   let autoDam = totalBaseAutoDmg()
   let finalDam = totalDmgTaken(gameSettings.currentBoss, autoDam)
+  console.log('finalDam:', finalDam)
   updateBossHealth(finalDam)
 }
 
 function totalBaseAutoDmg(){
-  totalBaseDamage(autoHacks)
-  totalBaseDamage(turrets)
+  let total = 0;
+  total += totalBaseDamage(autoHacks)
+  total += totalBaseDamage(turrets)
+  return total
 }
 
 //Returns the total base damage for any directory
@@ -340,6 +375,9 @@ function totalBaseDamage(dictionary){
   let total = 0
   for (let keys in dictionary){
     let element = dictionary[keys]
+    if(element.quantity == 0){
+      continue;
+    }
     if(dictionary == autoHacks){
       let effectChance = Math.random();
       while(effectChance <= element.effectChance){
@@ -366,17 +404,15 @@ function bossAttack(){
 
 function clearWanted(){
   let cost = Math.max(
-    player.wantedLevel * (counter.hightestHeldKills) / 40,
-    player.robotWallet / 6)
+    (player.wantedLevel * (counter.hightestHeldKills) / 40),
+    (player.robotWallet / 6))
 
   //If you cant afford nothing happens
-    if (canPurchase) {
+    if (canPurchase(cost)) {
       player.wantedLevel = 0;
       newBoss(0)
     }
   }
-  updateCounter()
-}
 
 //Wanted Level has increased odds of increasing if clicking
 function wantedLevelChange(fightingMod = 0){
@@ -402,13 +438,21 @@ function wantedLevelChange(fightingMod = 0){
 //Aggregate call to update all values: simple inside other functions
 function updateAllStats(){
   wantedLevelChange()
-  updateHealth()
+  updateMaxHeld()
 }
 
 
-function updateCounter(){}
+
 // TODO dameg calculator
 function totalDmgTaken(enemy = 'player', damage){
+  if(enemy=='player'){
+    return damage / (Math.max(player.armor, 1) *3)
+  } else {
+    if(enemy=='basicEnemy'){
+      return damage
+    }
+    return (damage / (Math.max(boss[enemy].armor, 1) *3))
+  }
 
 }
 
@@ -431,9 +475,10 @@ function updateBossHealth(howMuch){
   gameSettings.currentBossHealth = Math.max((gameSettings.currentBossHealth - howMuch), 0);
   if(gameSettings.currentBossHealth==0 && gameSettings.currentBoss != 'basicEnemy'){
     counter['kill'].bossesKilled += 1;
+    player.robotWallet += bosses[gameSettings.currentBoss].winBonus;
   } else {
     counter['kill'].totalKills += howMuch;
-
+    player.robotWallet += howMuch;
   }
 }
 
@@ -459,7 +504,7 @@ function updateVisible(dictionary){
 
 //Helper for all visible function
 function isVisible(cost){
-  return (counter['kill'].hightestHeldKills > (cost / 2))
+  return (counter['kill'].hightestHeldKills >= cost)
 }
 
 
@@ -469,7 +514,7 @@ function isHit(attacked){
   if(attacked == 'player'){
     evasion = player.evasion
 
-  } else if(attacked = basicEnemy){
+  } else if(attacked = 'basicEnemy'){
     return true;
   }
   else {
@@ -484,11 +529,11 @@ function drawPage(){
   let bossKey = gameSettings.currentBoss;
   updateAllStats()
   drawAllCounterInfo()
-  drawPlayerBuffs()
   //drawRobot(bossKey)
   drawHealth(bossKey)
   drawHealth('player')
   drawAllWeaponInfo()
+  drawWallet()
 }
 
 
@@ -498,19 +543,80 @@ function drawAllCounterInfo(){
   let template= `<div class="row">`
   template += templateWantedLevel();
   template += templateCounters();
-  template += `<div>`
-  template +=
+  template += `</div>`
+  template += templatePlayerBuffs();
 
   document.getElementById('all-Counter-info').innerHTML = template;
 }
 
-function drawAllWeaponInfo(){}
+function drawAllWeaponInfo(){
+  let template = ''
+  template += templateAutoHacks();
+  template += templateTurrets();
+  template += templateHandWeaps();
+
+  document.getElementById('all-weapons').innerHTML = template;
+}
+
+function templateAutoHacks(){
+  let template ='<div class="col-md-6" id = "auto-hackers">'
+  for (let keys in autoHacks){
+    let item = autoHacks[keys];
+    if(item.visible){
+      template += `<button type="button" class="btn btn-primary btn-outline-secondary visible"
+      onClick="buyAutoHack(${keys})">Break their system with ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
+    } else {
+      template += `<button type="button" class="btn btn-primary btn-outline-secondary invisible"
+      onClick="buyAuto(${keys})">Break their system with ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
+    }
+  }
+  template += '</div>'
+  return template
+}
+
+function templateTurrets(){
+  let template ='<div class="col-md-6" id = "turrets">'
+  for (let keys in turrets){
+    let item = turrets[keys];
+    if(item.visible){
+      template += `<button type="button" class="btn btn-primary btn-outline-secondary visible"
+      onClick="buyAutoHack(${keys})">Mow them down with automated ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
+    } else {
+      template += `<button type="button" class="btn btn-primary btn-outline-secondary invisible"
+      onClick="buyTurret(${keys})">Mow them down with automated ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
+    }
+  }
+  template += '</div>'
+  return template;
+}
+function templateHandWeaps(){
+  let template ='<div class="col-md-6" id = "hand-weapon">'
+  for (let keys in handWeapons){
+    let item = handWeapons[keys];
+    if(item.visible){
+      template += `<button type="button" class="btn btn-primary btn-outline-secondary visible"
+      onClick="buyHandWeapon(${keys})">Get personal with your ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
+    } else {
+      template += `<button type="button" class="btn btn-primary btn-outline-secondary invisible"
+      onClick="buyHandWeapon(${keys})">Get personal with your ${keys}! <br> Costs: ${item.cost[0]} robots</button>`
+    }
+  }
+  template += '</div>'
+  return template;
+}
+
+
+
+function drawWallet(){
+  let template = ''
+  template += `<h4> Robot Wallet = ${player.robotWallet} </h4>`
+  document.getElementById('wallet').innerHTML = template;
+}
 
 function drawRobot(key){
   let template = ''
   let object = bosses.find(element => Object.keys(element)[0] == key)
-  template += `<h4> Robot Wallet = ${player.robotWallet} </h4>`
-  template += `<img src=${object[key].img} alt="Evil Robot" class="circular" onClick('isTooFast()', attack(${key}))>`
+  template += `<img src=${object[key].img} alt="Evil Robot" class="w-100 h-100 circular" onClick='isTooFast(); 'attackClick();')>`
   document.getElementById('robot').innerHTML = template;
 }
 
@@ -557,13 +663,20 @@ function templateWantedLevel(){
 }
 
 function templatePlayerBuffs(){
-  let template ='<div class="col-md-6" id = "body-upgrades">'
+  let template =`<div class="col-md-6" id = "body-upgrades">`
   for (let keys in defencePerks){
-    template += `<button type="button" class="btn btn-primary btn-outline-secondary"
-    onclick="buyFood(${item.name})">Stay alive with more ${keys}! <br> Costs: ${defencePerks[keys].cost[0]} robots</button>`
+    let item = defencePerks[keys];
+    if(item.visible){
+      template += `<button type="button" class="p-1 btn btn-primary btn-outline-secondary visible"
+      onClick="buyBuff(${keys})">Stay alive with more ${keys}! <br> Costs: ${defencePerks[keys].cost[0]} robots</button>`
+    } else {
+      template += `<button type="button" class=" p-1 btn btn-primary btn-outline-secondary invisible"
+      onClick="buyBuff(${keys})">Stay alive with more ${keys}! <br> Costs: ${defencePerks[keys].cost[0]} robots</button>`
+    }
   }
+  template += '</div>'
+  return template;
 }
-function drawPlayerBuffs(){}
 
 function templateCounters(){
   template = `<div class="col-md-6" id="counters">`
@@ -582,6 +695,11 @@ function templateCounters(){
         <h5>Revives Used: ${counter[keys].totalRevives}</h5>
         <h5>Heals Used: ${counter[keys].totalHeals}</h5>`
         break;
+      case 'damage':
+          template += `<h5>Hacks: ${totalBaseDamage(autoHacks)}</h5>
+          <h5>Turrets: ${totalBaseDamage(turrets)}</h5>
+          <h5>Held Weapon: ${totalDamClick()}</h5>`
+          break;
     }
   }
   return template += `</div>`;
@@ -597,7 +715,7 @@ function isTooFast(){
   gameSettings.cheating = true;
   setTimeout(() => {
     gameSettings.cheating = false;
-  }, gameSettings.clickSpeed)
+  }, 1)
 }
 
 //Checks for end of game using flags
@@ -652,3 +770,4 @@ function loseCheat(){}
 drawRobot('basicEnemy')
 drawAllCounterInfo()
 ourConstantTimer()
+drawAllCounterInfo

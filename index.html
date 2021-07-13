@@ -33,48 +33,47 @@
   <main class= "container-fluid">
     <div class="row bg-dark">
       <!-- Counter info + Wanted -->
-      <div class="col-md-6" id="all-Counter-info">
-      <div class="row">
-        <div class="col-md-6" id="wanted-level"></div>
-        <div class="col-md-6" id="counters"></div>
-      </div>
-      <div class="col-md-6" id = "body-upgrades">
-        <button type="button" class="btn btn-primary">This is for buff 1</button>
-
+      <div class="col-md-6 d-flex flex-row" id="all-Counter-info">
+        <div class="row">
+          <div class="col-md-6" id="wanted-level"></div>
+          <div class="col-md-6" id="counters"></div>
+        </div>
+        <div class="col-md-5" id = "body-upgrades">
+        </div>
       </div>
     </div>
     <!-- Robot pic -->
     <div class="row justify-content-center">
-      <div class="col-md-8 text-center" id = "robot">
+      <div class="col-md-11 text-center" id='wallet'>
+      </div>
+      <div class="col-md-8" id = "robot">
       </div>
       <div class="col-md-8 text-center" id = "robot-health">
       </div>
       <div class="col-md-8 text-center" id = "player-health">
       </div>
-      <div class="col-md-6 justify-content-center">
+      <div class="col-md-6 d-flex justify-content-center p-4 shadow">
         <button type="button" class="btn btn-primary btn-outline-secondary" onclick="clearWanted()">
           <p>R1, R1, CIRCLE, R2, RIGHT, LEFT, RIGHT, LEFT, RIGHT, LEFT<br>Clear Your Wanted Level <br> Cost: </p>
         </button>
       </div>
 
     </div>
-    <!-- Clear rampancy button -->
+    <!-- weapons -->
     <div class="row justify-content-center">
-      <div class="col text-al" id = "robot">
-
-      </div>
-    </div>
-    <div class="col-md-6" id="all-weapons">
-      <div class="row">
-        <div class="col-md-6" id="auto-hackers"></div>
-        <div class="col-md-6" id="turrets"></div>
-        <div class="col-md-6" id="better-weapons"></div>
+      <div class="col-md-6" id="all-weapons">
+       <div class="row">
+          <div class="col-md-6" id="auto-hackers"></div>
+          <div class="col-md-6" id="turrets"></div>
+          <div class="col-md-6" id="hand-weapons"></div>
+        </div>
       </div>
     </div>
   </main>
 
   <!-- Footer -->
-  <footer class= "container-fluid"></footer>
+  <footer class= "container-fluid text-center bg-primary navbar-dark p-2">
+    SOS humanity needs you!</footer>
 
 
   <!-- script -->

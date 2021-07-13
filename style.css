@@ -29,3 +29,9 @@ main{
   border-radius: 50%;
   border: 2px solid rgba(220, 20, 60, 0.678);
 }
+
+#robot {
+  max-height: 30vh;
+  max-width: 30vw;
+  min-height: 30vh;
+}
