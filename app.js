@@ -22,7 +22,7 @@ let player = {
   autoRevive: 0,
   evasion: 0,
   armor: 1,
-  wantedLevel: 0,
+  wantedLevel: 2,
   robotWallet: 0,
   heldWeapon: 'fist',
   ownedWeapon: [{weapon: 'fist', dualWield: false},] // This would be a prop field for weapons owned and dual wield status
@@ -325,6 +325,7 @@ function ourConstantTimer(){
       clearInterval(interval)
     }
     //console.log('machine', turrets['machineGun'].quantity)
+    isNewBoss()
     attackAuto()
     updateAllVisibility()
     drawPage()
@@ -421,6 +422,7 @@ function wantedLevelChange(fightingMod = 0){
   odds = Math.random()+fightingMod
   if(odds < .2){
     change = -1;
+  }
  if (odds >= .85){
    change = 1;
  }
@@ -430,8 +432,10 @@ function wantedLevelChange(fightingMod = 0){
   } else {
     change = 0;
   }
-  player.wantedLevelChange +=change;
-}
+  if(player.wantedLevel == 0){
+    change=0;
+  }
+  player.wantedLevel +=change;
 }
 
 //Function list
@@ -452,7 +456,8 @@ function totalDmgTaken(enemy = 'player', damage){
     if(enemy=='basicEnemy'){
       return damage
     }
-    return (damage / (Math.max(boss[enemy].armor, 1) *3))
+    let currentBoss = bosses.find(element => Object.keys(element)[0] == enemy)
+    return (Math.floor((Math.max(damage,1)) / (Math.max(currentBoss.armor, 1) *3)))
   }
 
 }
@@ -749,6 +754,7 @@ function finishChecker(){
 function isNewBoss(){
   let newBossChance = Math.random()
   if (gameSettings.currentBossHealth == 0 && gameSettings.currentBoss == 'basicEnemy'){
+    debugger
     if(player.wantedLevel <= 2 && newBossChance > .95){
       newBoss(Math.round(Math.random() + .5))
     } else if (player.wantedLevel <=4 && newBossChance > .65){
@@ -763,9 +769,15 @@ function isNewBoss(){
 
 function newBoss(indexOfBoss){
   let incomingBoss = bosses[indexOfBoss];
-  gameSettings.currentBossMaxHealth = incomingBoss.health
-  gameSettings.currentBossHealth = incomingBoss.health
-  gameSettings.currentBoss = Object.keys(incomingBoss)[0]
+  for (let key in incomingBoss){   //attempts: incomingBoss.health: incomingBoss['health']
+      gameSettings.currentBossMaxHealth = bosses[indexOfBoss]['key'].health
+      gameSettings.currentBossHealth = bosses[key]['health']
+  }
+  // let bossStats = incomingBoss[0]
+  // gameSettings.currentBossMaxHealth = bossStats.health
+  // gameSettings.currentBossHealth = bossStats.health
+  gameSettings.currentBoss = Object.keys(bosses)[indexOfBoss]
+  console.log('test:',  Object.keys(bosses)[indexOfBoss])
   drawRobot(gameSettings.currentBoss)
   counter['bossesSeen'].totalBossesSeen += 1
 }
